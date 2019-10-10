@@ -1,9 +1,17 @@
 // import packages
-var mongodb = require('mongodb');
-var ObjectIDB = mongodb.ObjectID;
-var crypto = require('crypto');
-var express = require('express')
-var bodyparser = require('body-parser');
+const mongodb = require('mongodb');
+//const ObjectIDB = mongodb.ObjectID;
+
+const crypto = require('crypto');
+const express = require('express')
+const bodyparser = require('body-parser'); // form 데이터를 여러 형식으로 받아주는 패키지
+const User = require('./user.js');
+const mongoose = require('mongoose');
+
+const db = require('./db.js');
+const ObjectID = db.ObjectID;
+
+require('./user.js');
 
 // password utils
 // create fun to random string
@@ -24,8 +32,8 @@ var sha512 = function(password, salt){
 }
 
 function saltHashPassword(password){
-    var salt = getRandomString(16); // 랜덤 16개 글자 생성
-    var passwordData = sha512(password,salt); //새로운 비번 생성해서 반환
+    var salt = getRandomString(16); // salt=랜덤 16개 글자 생성
+    var passwordData = sha512(password,salt); //소금뿌린 새로운 비번 생성해서 반환
     return passwordData;
 }
 
@@ -36,10 +44,11 @@ function chechHashPassword(userPassword,salt){
 
 // Create Express Service
 var app = express();
-app.use(bodyparser.json());
-app.use(bodyparser.urlencoded({extended: true}));
+app.use(bodyparser.json()); // body데이터 json형식으로 받음
+app.use(bodyparser.urlencoded({extended: true})); //qs모듈로 쿼리스트링 파싱
 
-// Create MongoDB client
+// Create MongoDB client----------
+//const MongoClient = db.MongoClient;
 var MongoClient = mongodb.MongoClient;
 
 // Connection URL
@@ -63,30 +72,63 @@ MongoClient.connect(url,{useNewUrlParser: true},function(err,client){
             var name = post_data.name;
             var type = post_data.type;
 
-            var insertJson = {
-                "id":id,
-                "pw":password,
-                "salt":salt,
-                "name":name,
-                "type":type
-            };
+            // var book = new Book({
+            //     name: "NodeJS Tutorial",
+            //     author: "velopert"
+            // });
+            // book.save(function(err, book){
+            //     if(err) return console.error(err);
+            //     console.dir(book);
+            // });
+
+            var user = new User({
+                id: id,
+                pw: password,
+                salt: salt,
+                name: name,
+                type: type
+            });
+
+            // var insertJson = {
+            //     "id":id,
+            //     "pw":password,
+            //     "salt":salt,
+            //     "name":name,
+            //     "type":type
+            // };
             var db = client.db('counselApp') //db 이름
 
             // email (회원) 존재 여부 체크
-            db.collection('users')
-                .find({"id":id}).count(function(err,number){
-                    if(number !=0){
-                        response.json("이미 존재하는 id입니다.");
-                        console.log("이미 존재하는 id입니다.");
-                    }else{
-                        // insert data
-                        db.collection('users')
-                            .insertOne(insertJson,function(err,res){
-                                response.json("회원가입 성공");
-                                console.log("회원가입 성공");
-                            })
-                    }
-                })
+
+            user.find({id: id}).count(function(err, number){
+                if(err) console.log(err)
+                if(number!=0){
+                    response.json("이미 존재하는 id입니다.");
+                    console.log("이미 존재하는 id입니다.");
+                }else{
+                    user.save(function(err, user){
+                        if(err) return console.error(err);
+                        console.dir(user);
+                        console.log(user.name + "회원가입 성공");
+                    });
+                }
+            });
+
+            // db.collection('users')
+            //     .find({"id":id}).count(function(err,number){
+            //         if(number !=0){
+            //             response.json("이미 존재하는 id입니다.");
+            //             console.log("이미 존재하는 id입니다.");
+            //         }else{
+
+            //             // insert data
+            //             // db.collection('users')
+            //             //     .insertOne(insertJson,function(err,res){
+            //             //         response.json("회원가입 성공");
+            //             //         console.log("회원가입 성공");
+            //             //     })
+            //         }
+            //     })
         });
         
         /* Login endpoint
