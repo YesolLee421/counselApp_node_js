@@ -4,6 +4,14 @@ var userSchema = new mongoose.Schema({
     pw: String,
     salt: String,
     name: String,
-    type: Number,
+    type: Number
 });
-module.exports = mongoose.model('User',userSchema);
+
+userSchema.methods.comparePassword = function(inputPassword, callback){
+    if(inputPassword === this.pw){
+        callback(null, true);
+    }else{
+        callback('error');
+    }
+};
+module.exports = mongoose.model('users',userSchema);
