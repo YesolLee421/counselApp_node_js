@@ -28,11 +28,16 @@ registerRouter.post('/', function(req, res){
         
                     user.save(function(err, user){
                         if(err) return console.error(err);
-                        res.send(username+"저장 성공");
                         console.log(username+"저장 성공");
+                        res.send(username+"저장 성공")
+                            .redirect('/login'); // 성공 시 리다이렉션
+                        
                     });
                 }
             });
-})
+});
+
+// 회원탈퇴 추후 구현
+
 
 module.exports = registerRouter;

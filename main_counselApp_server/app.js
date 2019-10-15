@@ -13,7 +13,7 @@ const passportConfig = require('./lib/passport'); // 직접 만든 passport미�
 
 // [CONFIGURE ROUTER]
 //var router = require('./routes')(app, User)
-//var router = require('./routes/index')(app, User);
+var homeRouter = require('./routes/index');
 var registerRouter = require('./routes/register');
 var loginRouter = require('./routes/login');
 
@@ -36,8 +36,10 @@ db();
 
 passportConfig();
 
+app.use('/home',homeRouter);
 app.use('/register',registerRouter);
 app.use('/login',loginRouter);
+
 
 // [CONFIGURE SERVER PORT]
 var port = process.env.PORT || 8080;
