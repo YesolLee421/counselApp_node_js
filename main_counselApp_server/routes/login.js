@@ -9,6 +9,13 @@ loginRouter.post('/',passport.authenticate('local',{
     res.redirect('/'); // 성공 시 리다이렉션
 });
 
+loginRouter.get('/', passport.authenticate('local',{
+    failureRedirect: '/' //
+}), (req, res)=>{
+    res.send(`Welcome, ${req.body.id}`);
+    res.redirect('/');
+});
+
 // 로그아웃 추후 구현
 
 

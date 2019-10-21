@@ -5,8 +5,9 @@ const createError = require('http-errors');
 const express     = require('express');
 const app         = express();
 const bodyParser  = require('body-parser');
-const mongoose    = require('mongoose');
 const db = require('./db.js');
+const logger = require('morgan');
+
 
 const session = require('express-session'); // 세션
 const passport = require('passport'); // passport 미들웨어
@@ -19,6 +20,7 @@ var registerRouter = require('./routes/register');
 var loginRouter = require('./routes/login');
 
 // [CONFIGURE APP TO USE bodyParser]
+app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 

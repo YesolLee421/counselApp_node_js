@@ -1,10 +1,28 @@
 const mongoose = require('mongoose');
-var userSchema = new mongoose.Schema({
-    id: String,
-    pw: String,
+const { Schema } = mongoose;
+const userSchema = new Schema({
+    id:{
+        type: String,
+        required: true,
+        unique: true,
+    },
+    pw: {
+        type: String,
+        required: true,
+    },
     salt: String,
-    name: String,
-    type: Number
+    name: {
+        type: String,
+        required: true,
+    },
+    type: {
+        type: Number,
+        required:true,
+    },
+    createdAt : {
+        type: Date,
+        default: Date.now,
+    },
 });
 
 userSchema.methods.comparePassword = function(inputPassword, callback){
