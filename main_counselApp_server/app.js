@@ -1,11 +1,12 @@
 // app.js
 
 // [LOAD PACKAGES]
+const createError = require('http-errors');
 const express     = require('express');
 const app         = express();
 const bodyParser  = require('body-parser');
 const mongoose    = require('mongoose');
-var db = require('./db.js');
+const db = require('./db.js');
 
 const session = require('express-session'); // 세션
 const passport = require('passport'); // passport 미들웨어
@@ -23,7 +24,7 @@ app.use(bodyParser.json());
 
 app.use(session( // 세션 활성화 + 설정
     {
-        secret: 'dajfiadfa',
+        secret: 'dsa09feow9f2if0dif29',
         resave: true,
         saveUninitialized: false
     }
@@ -36,9 +37,22 @@ db();
 
 passportConfig();
 
-app.use('/home',homeRouter);
+app.use('/',homeRouter);
 app.use('/register',registerRouter);
 app.use('/login',loginRouter);
+
+//http error handler
+// 404 error
+app.use((req, res, next)=>{
+    res.status(400).send('404 Not Found');
+    //next(createError(404));
+});
+// server error (5**)
+app.use((err, req, res, next)=>{
+    console.log(`Server Error:${err}`);
+    res.status(500).send('Server Error');
+})
+
 
 
 // [CONFIGURE SERVER PORT]

@@ -37,38 +37,9 @@ homeRouter.get('/',(req, res)=>{
             res.send("게시물이 하나도 없습니다.");
             console.log("게시물이 하나도 없습니다.");
         }
-    });   
+    });
+       
 
 });
 
 module.exports = homeRouter;
-
-
-
-
-// module.exports = function(app, User)
-// {
-    
-//     var User = require('../Model/User.js');
-    
-//     // GET ALL Users
-//     app.get('/api/users', function(req,res){
-//         res.end();
-        
-//     });
-
-   
-
-//     // UPDATE THE User info
-//     app.put('/profile/change', function(req, res){
-//         res.end();
-        
-//     });
-
-//     // DELETE User
-//     app.delete('/leave', function(req, res){
-//         res.end();
-        
-//     });
-
-// }
