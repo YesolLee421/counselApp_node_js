@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-var User = require('../Model/User.js');
+const express = require('express');
+const router = express.Router();
+const User = require('../Model/User');
 
 //모든 유저 조회
 router.get('/users', function(req, res, next){

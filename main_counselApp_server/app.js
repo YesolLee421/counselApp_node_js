@@ -1,23 +1,25 @@
 // app.js
-
 // [LOAD PACKAGES]
-const createError = require('http-errors');
+
 const express     = require('express');
 const app         = express();
 const bodyParser  = require('body-parser');
 const db = require('./db.js');
 const logger = require('morgan');
-
+const flash = require('connect-flash');
+require('dotenv').config();
 
 const session = require('express-session'); // 세션
 const passport = require('passport'); // passport 미들웨어
-const passportConfig = require('./lib/passport'); // 직접 만든 passport미들웨어
+const passportConfig = require('./passport'); // passport/index
 
 // [CONFIGURE ROUTER]
 //var router = require('./routes')(app, User)
-var homeRouter = require('./routes/index');
-var registerRouter = require('./routes/register');
-var loginRouter = require('./routes/login');
+const indexRouter = require('./routes/'); 
+const authRouter = require('./routes/auth');
+// const registerRouter = require('./routes/register');
+// const loginRouter = require('./routes/login');
+
 
 // [CONFIGURE APP TO USE bodyParser]
 app.use(logger('dev'));
@@ -26,24 +28,38 @@ app.use(bodyParser.json());
 
 app.use(session( // 세션 활성화 + 설정
     {
-        secret: 'dsa09feow9f2if0dif29',
-        resave: true,
-        saveUninitialized: false
+        secret: process.env.COOKIE_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            secure: false,
+        },
     }
 ));
 app.use(passport.initialize()); //passport 구동
 app.use(passport.session()); // session 연결
+app.use(flash());
 
 // Connect to MongoDB Server
 db();
 
-passportConfig();
+// passport configue
+passportConfig(passport);
 
-app.use('/',homeRouter);
-app.use('/register',registerRouter);
-app.use('/login',loginRouter);
 
-//http error handler
+
+// routers
+app.use('/',indexRouter);
+app.use('/auth', authRouter);
+// app.use('/register',registerRouter);
+// app.use('/login',loginRouter);
+
+// [CONFIGURE SERVER PORT]
+const port = process.env.PORT || 8080;
+app.set('port', port);
+
+// http error handler
 // 404 error
 app.use((req, res, next)=>{
     res.status(400).send('404 Not Found');
@@ -55,18 +71,7 @@ app.use((err, req, res, next)=>{
     res.status(500).send('Server Error');
 })
 
-
-
-// [CONFIGURE SERVER PORT]
-var port = process.env.PORT || 8080;
-
-
-
 // [RUN SERVER]
-var server = app.listen(port, function(){
- console.log("Express server has started on port " + port)
+const server = app.listen(port, function(){
+ console.log("Express server has started on port " + port);
 });
-
-
-// User Model define
-// var User = require('./Model/User.js');

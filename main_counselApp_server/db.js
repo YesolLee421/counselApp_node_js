@@ -22,6 +22,7 @@ module.exports = () => {
     connect();
     // 연결 해제되면 다시 연결함
     mongoose.connection.on('disconnected', connect);
-    require('./Model/User.js');
-    require('./Model/post.js');
+        
+    require('./Model/User');
+    require('./Model/post');
 };
