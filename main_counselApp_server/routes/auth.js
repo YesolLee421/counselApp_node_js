@@ -73,7 +73,8 @@ router.post('/login', isNotLoggedIn, (req, res, next)=>{
         }
         if(!user){ // 유저 없음
             req.flash('loginError', info.message);
-            return res.send(info.message); //res.redirect('/auth/login');
+            return res.json(info.message); //res.redirect('/auth/login');
+            // 안드로이드에서 json을 받길래 json으로 수정함
         }
         return req.login(user, (loginError)=>{ //req.user에 저장
             if(loginError){ 
@@ -82,7 +83,8 @@ router.post('/login', isNotLoggedIn, (req, res, next)=>{
             }
                         
             console.log('login success');
-            return res.send(`${user.name} login success`); //res.redirect('/');
+            return res.json(`${user.name} login success`); //res.redirect('/');
+            //return res.json(user);
         });
     })(req, res, next); // 미들웨어 내의 미들웨어에 붙임(?)
 });
