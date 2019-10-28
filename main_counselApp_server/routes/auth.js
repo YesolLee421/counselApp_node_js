@@ -17,7 +17,7 @@ router.post('/register', isNotLoggedIn, async (req, res, next)=>{
             const hash = await bcrypt.hash(pw, 12);
             if(user){
                 req.flash(id+"는 중복된 id입니다.");
-                res.send(id+"는 중복된 id입니다.");
+                res.json(id+"는 중복된 id입니다.");
                 console.log(id+"는 중복된 id입니다.")
             }else{
                 const user = new User();
@@ -32,7 +32,7 @@ router.post('/register', isNotLoggedIn, async (req, res, next)=>{
                 user.save(function(err, user){
                     if(err) return console.error(err);
                     console.log(name+"저장 성공");
-                    res.send(name+"저장 성공")
+                    res.status(201).json(name+"저장 성공")
                     //res.redirect('/auth/login'); // 성공 시 리다이렉션
                     
                 });
@@ -94,7 +94,8 @@ router.get('/logout', isLoggedIn, (req, res)=>{
     req.logout();
     req.session.destroy();
     console.log('logout success');
-    res.redirect('/');
+    res.json('logout success');
+    //res.redirect('/');
 });
 
 
