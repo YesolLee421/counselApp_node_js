@@ -38,25 +38,6 @@ router.post('/register', isNotLoggedIn, async (req, res, next)=>{
                 });
             }
         });
-
-        // const exUser = User.findOne({id:id});
-        // console.log(exUser);
-        // if(exUser){
-        //     req.flash('registerError', '중복된 이메일입니다.');
-        //     return res.redirect('/auth/register');
-        // }
-        // const hash = await bcrypt.hash(pw, 12);
-        // const newUser = new User({ id:id, pw:hash, name:name, type:type });
-        // await newUser.save();
-        // console.log(name + "register success");
-        // return res.redirect('/');
-       
-        // user.save(function(err, user){
-        //     if(err) return console.error(err);
-        //     console.log(username+"저장 성공");
-        //     res.send(username+"저장 성공")
-        //         .redirect('/login'); // 성공 시 리다이렉션
-        // });
         
     } catch(error){
         console.error(error);

@@ -14,12 +14,9 @@ const passport = require('passport'); // passport 미들웨어
 const passportConfig = require('./passport'); // passport/index
 
 // [CONFIGURE ROUTER]
-//var router = require('./routes')(app, User)
 const indexRouter = require('./routes/'); 
 const authRouter = require('./routes/auth');
-// const registerRouter = require('./routes/register');
-// const loginRouter = require('./routes/login');
-
+const postRouter = require('./routes/post');
 
 // [CONFIGURE APP TO USE bodyParser]
 app.use(logger('dev'));
@@ -52,6 +49,7 @@ passportConfig(passport);
 // routers
 app.use('/',indexRouter);
 app.use('/auth', authRouter);
+app.use('/posts', postRouter);
 // app.use('/register',registerRouter);
 // app.use('/login',loginRouter);
 
