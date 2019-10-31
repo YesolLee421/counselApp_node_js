@@ -3,36 +3,56 @@ const router = express.Router();
 const User = require('../Model/User');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const Post = require("../Model/post");
-const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId;
+
+// 전체 게시물 확인
+router.get('/', (req, res, next)=>{
+    try{
+        Post.find(async (err, posts)=>{
+            if(err){
+                console.error(err);
+                return next(err);
+            }
+            if(posts){
+                return res.json(posts);
+            }else{
+                console.log('게시물 없음');
+                return res.json('게시물 없음');
+            }
+        });
+
+    }catch(error){
+        console.error(error);
+        return next(error);
+    }
+});
+
 
 // 개별 게시물 확인
 router.get('/:id', (req, res, next)=>{
-
-    const id_obj = ObjectId(req.params.id);
-        try{
-            Post.findById(id_obj, async function(err, post){
-                if(err){
-                    console.error(err);
-                    return next(err);
-                }
-                if(post){
-                    const { title } = post;
-                    console.log(`${title} 클릭`)
-                    req.flash(`${title} 클릭`);
-                    return res.json({success:true, data: post});
-                    
-                }else{
-                    console.log('게시물 없음');
-                    return res.json({success:false, message:'게시물 없음'});
-                }
+// const id_obj = ObjectId(req.params.id); //findById 대신 findOne을 쓰니 ObjectId로 변환 안해도 됨
+    try{
+        Post.findOne({_id: req.params.id}, async function(err, post){
+            if(err){
+                console.error(err);
+                return next(err);
+            }
+            if(post){
+                const { title } = post;
+                console.log(`${title} 클릭`)
+                req.flash(`${title} 클릭`);
+                return res.json({success:true, data: post});
                 
-            });
+            }else{
+                console.log('게시물 없음');
+                return res.json({success:false, message:'게시물 없음'});
+            }
             
-        } catch(error){
-            console.error(error);
-            return next(error);
-        }
+        });
+        
+    } catch(error){
+        console.error(error);
+        return next(error);
+    }
 });
 
 
@@ -59,15 +79,44 @@ router.post('/',  (req, res, next)=>{
 });
 
 // 게시물 수정
-router.put('/:postid', (req, res, next)=>{
-    const id_obj = ObjectId(req.params.id);
+router.put('/:id', (req, res, next)=>{
+    // req.params와 req.body의 차이는 뭘까? 아 왠지 params는 url에 나오는 정보인것 같다. body는 url에 안나오니까.
+    try{
+        Post.findOneAndUpdate(
+            {_id: req.params.id},
+            { title: req.body.title, content:req.body.content}, {returnNewDocument : true},  async function(err, post){
+            if(err){
+                console.error(err);
+                return next(err);
+            }else{
+                console.log(post);
+                return res.json(post); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+            }
+        });
+    } catch(error){
+        console.error(error);
+        return next(error);
+    }
 });
 
 // 게시물 삭제
-router.delete('/:postid', (req, res, next)=>{
-
-    const id_obj = ObjectId(req.params.id);
-
+router.delete('/:id', (req, res, next)=>{
+    try{
+        Post.findOneAndDelete(
+            {_id: req.params.id},
+            async function(err){
+            if(err){
+                console.error(err);
+                return next(err);
+            }else{
+                console.log('게시물 삭제 완료');
+                return res.json("게시물 삭제 완료"); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+            } 
+        });
+    } catch(error){
+        console.error(error);
+        return next(error);
+    }
 });
 
 module.exports = router;
