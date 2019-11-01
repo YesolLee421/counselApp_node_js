@@ -40,11 +40,11 @@ router.get('/:id', (req, res, next)=>{
                 const { title } = post;
                 console.log(`${title} 클릭`)
                 req.flash(`${title} 클릭`);
-                return res.json({success:true, data: post});
+                return res.json(post);
                 
             }else{
                 console.log('게시물 없음');
-                return res.json({success:false, message:'게시물 없음'});
+                return res.json('게시물 없음');
             }
             
         });
