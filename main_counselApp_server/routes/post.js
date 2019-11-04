@@ -37,6 +37,7 @@ router.get('/:id', (req, res, next)=>{
                 return next(err);
             }
             if(post){
+                // 추후 조회수 올리는 부분 넣기
                 const { title } = post;
                 console.log(`${title} 클릭`)
                 req.flash(`${title} 클릭`);
@@ -73,7 +74,7 @@ router.post('/',  (req, res, next)=>{
             return next(err);
         }
         console.log(title+" 생성 성공");
-        res.status(201).json(title+" 생성 성공");
+        res.status(201).json(post._id);
          //res.redirect('/auth/login'); // 성공 시 리다이렉션
     });
 });
@@ -84,13 +85,13 @@ router.put('/:id', (req, res, next)=>{
     try{
         Post.findOneAndUpdate(
             {_id: req.params.id},
-            { title: req.body.title, content:req.body.content}, {returnNewDocument : true},  async function(err, post){
+            { title: req.body.title, content:req.body.content, date_lastChanged: Date.now()}, {returnNewDocument : true},  async function(err, post){
             if(err){
                 console.error(err);
                 return next(err);
             }else{
-                console.log(post);
-                return res.json(post); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+                console.log(`${req.body.title} 수정 완료`);
+                return res.json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
             }
         });
     } catch(error){
