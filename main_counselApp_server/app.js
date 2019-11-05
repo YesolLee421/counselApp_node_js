@@ -17,6 +17,7 @@ const passportConfig = require('./passport'); // passport/index
 const indexRouter = require('./routes/'); 
 const authRouter = require('./routes/auth');
 const postRouter = require('./routes/post');
+const userRouter = require('./routes/user');
 
 // [CONFIGURE APP TO USE bodyParser]
 app.use(logger('dev'));
@@ -50,6 +51,7 @@ passportConfig(passport);
 app.use('/',indexRouter);
 app.use('/auth', authRouter);
 app.use('/posts', postRouter);
+app.use('/users', userRouter);
 // app.use('/register',registerRouter);
 // app.use('/login',loginRouter);
 
