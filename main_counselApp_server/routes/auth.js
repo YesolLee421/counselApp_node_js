@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const User = require('../Model/User');
+const Expert = require('../Model/expert');
 const bcrypt = require('bcrypt');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 
@@ -22,20 +23,45 @@ router.post('/register', isNotLoggedIn, async (req, res, next)=>{
             }else{
                 const user = new User();
                 user.id = id;
-                //password 암호화 필요
-                
                 user.pw = hash;
                 user.salt = "";
                 user.name = name;
                 user.type = type;
     
-                user.save(function(err, user){
+                user.save(async function(err, user){
                     if(err) return console.error(err);
-                    console.log(name+"저장 성공");
-                    res.status(201).json(name+"저장 성공")
-                    //res.redirect('/auth/login'); // 성공 시 리다이렉션
+                    console.log("일반 사용자 저장 성공");
+
+                    if(type==2){
+                        const expert = new Expert();
+                        expert.uid = user._id;
+                        expert.name_formal = "실명 입력";
+                        expert.about = "";
+                        expert.belongTo = "";
+                        expert.education = "";
+                        expert.career = "";
+                        expert.certificate = "";
+                        expert.major = "";
+    
+                        expert.save(function(err, expert){
+                            if(err){
+                                console.error(err);
+                                return next(err);
+                            }
+                            console.log("전문가 생성 성공");
+                            return res.status(201).json(expert._id);
+                             //res.redirect('/auth/login'); // 성공 시 리다이렉션
+                        });
+                    }else{
+                        return res.status(201).json(user._id);
+                    }
+
                     
+                    //res.redirect('/auth/login'); // 성공 시 리다이렉션
                 });
+                
+                
+                
             }
         });
         
