@@ -1,8 +1,25 @@
 const express = require('express')
 const router = express.Router();
 const User = require('../Model/User');
+const multer = require('multer');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const Post = require("../Model/post");
+const path = require('path');
+
+const upload = multer({ // 파일 업로드 객체
+    storage: multer.diskStorage({
+        destination(req, file, cb){ //저장 위치
+            cb(null, '/uploads')
+        },
+        filename(req,file,cb){ //파일명
+            const ext = path.extname(file.originalname);
+            cb(null, path.basename(file.originalname, ext)+ new Date().valueOf() + ext)
+        },
+    }),
+    limits: { //크기 제한
+        fileSize: 5*1024*1024
+    },
+});
 
 // 전체 게시물 확인
 router.get('/', (req, res, next)=>{
@@ -77,6 +94,12 @@ router.post('/',  (req, res, next)=>{
         res.status(201).json(post._id);
          //res.redirect('/auth/login'); // 성공 시 리다이렉션
     });
+});
+
+// 이미지 업로드
+router.post('/img', upload.single('img'), (req, res)=>{
+    console.log(req.body, req.file);
+    res.json({url: `/img/${req.file.filename}`});
 });
 
 // 게시물 수정
