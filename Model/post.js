@@ -25,31 +25,21 @@ const postSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-    hit: {
+    hit: { //조회수
         type: Number,
         default: 0,
     },
-    like: {
+    like: { // 격려
         type: Number,
         default: 0,
     },
-    comments: {
+    comments: { //댓글 수
         type: Number,
         default: 0,
     },
     // 추후 사진, keyword, comment 내용 등 추가
+    // 만약 사진 여러 장 추가하려면 사진 객체를 배열로 넣어야 할 듯
 });
 
-
-
-// 모든 게시물 가져오기
-
-// 게시물 하나 가져오기:id
-
-// 게시물 생성
-
-// 게시물 수정:id
-
-// 게시물 삭제:id
 
 module.exports = mongoose.model('posts',postSchema);

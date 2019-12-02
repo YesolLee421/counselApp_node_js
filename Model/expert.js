@@ -36,11 +36,10 @@ const expertSchema = new Schema({
     level: {
         type: Number,
         default: 1,
+    },
+    portrait:{
+        type: String // 프로필 사진 경로
     }
 });
 
-
-
-// ```OverwriteModelError: Cannot overwrite `users` model once compiled.``` -> 모듈화할 때 새로 model.~ 안하고 그냥 userSchema 넣어줌
 module.exports = mongoose.model('experts',expertSchema);
-// module.exports =userSchema;

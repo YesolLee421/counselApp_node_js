@@ -6,19 +6,27 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const Post = require("../Model/post");
 const path = require('path');
 
-const upload = multer({ // 파일 업로드 객체
-    storage: multer.diskStorage({
-        destination(req, file, cb){ //저장 위치
-            cb(null, '/uploads')
-        },
-        filename(req,file,cb){ //파일명
-            const ext = path.extname(file.originalname);
-            cb(null, path.basename(file.originalname, ext)+ new Date().valueOf() + ext)
-        },
-    }),
+// single file uploads test
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '../uploads')) //상대경로는 안되다가 절대 경로로 하니 됐다.
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+    },
     limits: { //크기 제한
         fileSize: 5*1024*1024
     },
+});
+
+//will be using this for uplading
+const upload = multer({ storage: storage });
+
+// 이미지 하나 올리는 라우터 실험
+router.post('/testUpload', upload.single('file'),  (req, res, next)=>{
+    console.log(req.file);
+    return res.status(201).json(`storage location is  ${req.hostname} ${req.file.path}`);
+
 });
 
 // 전체 게시물 확인
@@ -30,7 +38,7 @@ router.get('/', (req, res, next)=>{
                 return next(err);
             }
             if(posts){
-                return res.json(posts);
+                return res.status(200).res.json(posts);
             }else{
                 console.log('게시물 없음');
                 return res.json('게시물 없음');
@@ -58,7 +66,7 @@ router.get('/:id', (req, res, next)=>{
                 const { title } = post;
                 console.log(`${title} 클릭`)
                 req.flash(`${title} 클릭`);
-                return res.json(post);
+                return res.status(200).res.json(post);
                 
             }else{
                 console.log('게시물 없음');
@@ -96,11 +104,7 @@ router.post('/',  (req, res, next)=>{
     });
 });
 
-// 이미지 업로드
-router.post('/img', upload.single('img'), (req, res)=>{
-    console.log(req.body, req.file);
-    res.json({url: `/img/${req.file.filename}`});
-});
+
 
 // 게시물 수정
 router.put('/:id', (req, res, next)=>{
@@ -114,7 +118,7 @@ router.put('/:id', (req, res, next)=>{
                 return next(err);
             }else{
                 console.log(`${req.body.title} 수정 완료`);
-                return res.json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+                return res.status(203).res.json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
             }
         });
     } catch(error){
@@ -134,7 +138,7 @@ router.delete('/:id', (req, res, next)=>{
                 return next(err);
             }else{
                 console.log('게시물 삭제 완료');
-                return res.json("게시물 삭제 완료"); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+                return res.status(200).res.json("게시물 삭제 완료"); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
             } 
         });
     } catch(error){

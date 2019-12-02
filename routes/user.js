@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../Model/User');
 const Expert = require('../Model/expert');
+const fs = require('fs'); //이미지 파일 업로드
 
 //모든 상담사(expert) 조회
 router.get('/experts', function(req, res, next){
@@ -73,7 +74,9 @@ router.get('/:id/expert', function(req, res, next){
 
 // 유저 정보 입력: 추후 상담사 정보 테이블 확정 후 코딩
 router.put('/:id/expert', (req, res, next)=>{
-    const { name_formal, about, belongTo, education, career, certificate, major } = req.body; // 상담사 정보  관련
+    const { name_formal, about, belongTo, education, career, certificate, major, portrait } = req.body; // 상담사 정보  관련
+
+    // 여기서 portrait 사진 업로드 및 저장->그 경로를 
 
     // req.params와 req.body의 차이는 뭘까? 아 왠지 params는 url에 나오는 정보인것 같다. body는 url에 안나오니까.
     try{
