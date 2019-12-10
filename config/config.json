@@ -1,0 +1,33 @@
+{
+    "development": {
+      "username": "root",
+      "database": "counselApp",
+      "host": "127.0.0.1",
+      "port": "27017",
+      "dialect": "mongodb",
+      "dialectOptions": {
+        "charset": "utf8mb4"
+      },
+      "operatorsAliases": false
+    },
+    "test": {
+      "username": "root",
+      "database": "counselApp",
+      "host": "127.0.0.1",
+      "dialect": "mongodb",
+      "dialectOptions": {
+        "charset": "utf8mb4"
+      },
+      "operatorsAliases": false
+    },
+    "production": {
+      "username": "root",
+      "password": "counselApp",
+      "database": "rf_db",
+      "host": "127.0.0.1",
+      "dialect": "mongodb",
+      "dialectOptions": {
+        "charset": "utf8mb4"
+      }
+    }
+  }

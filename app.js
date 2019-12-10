@@ -4,31 +4,14 @@
 const express     = require('express');
 const app         = express();
 const bodyParser  = require('body-parser');
-const db = require('./db.js');
+const db = require('./config/db');
 const logger = require('morgan');
 const flash = require('connect-flash');
-const multer = require('multer');
 require('dotenv').config();
 
 const session = require('express-session'); // 세션
 const passport = require('passport'); // passport 미들웨어
 const passportConfig = require('./passport'); // passport/index
-
-// file uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './public/uploads')
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
-    },
-    // limits: { //크기 제한
-    //     fileSize: 5*1024*1024
-    // },
-});
-
-//will be using this for uplading
-const upload = multer({ storage: storage });
 
 // [CONFIGURE ROUTER]
 const indexRouter = require('./routes/'); 
@@ -95,4 +78,4 @@ const server = app.listen(port, function(){
  console.log("Express server has started on port " + port);
 });
 
-module.exports = app, upload;
+module.exports = app;
