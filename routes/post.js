@@ -1,54 +1,39 @@
 const express = require('express')
 const router = express.Router();
 const User = require('../Model/User');
-const multer = require('multer');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const Post = require("../Model/post");
 const path = require('path');
-
-// single file uploads test
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, '../uploads')) //상대경로는 안되다가 절대 경로로 하니 됐다.
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
-    },
-    limits: { //크기 제한
-        fileSize: 5*1024*1024
-    },
-});
-
-//will be using this for uplading
-const upload = multer({ storage: storage });
+const upload = require('./uploads');
 
 // 이미지 하나 올리는 라우터 실험
-router.post('/testUpload', upload.single('file'),  (req, res, next)=>{
-    console.log(req.file);
-    return res.status(201).json(`storage location is  ${req.hostname} ${req.file.path}`);
+router.post('/testUpload', upload.single('file'), async (req, res, next)=>{
+    try{
+        console.log(req.file);
+        return res.status(201).json(`storage location is  ${req.hostname} ${req.file.path}`);
 
+    }catch(e){
+        console.log(e);
+        return next(e);
+    }
 });
 
 // 전체 게시물 확인
 router.get('/', (req, res, next)=>{
-    try{
         Post.find(async (err, posts)=>{
-            if(err){
-                console.error(err);
-                return next(err);
-            }
-            if(posts){
-                return res.status(200).res.json(posts);
-            }else{
-                console.log('게시물 없음');
-                return res.json('게시물 없음');
+            try{
+                if(posts){
+                    return res.status(200).json(posts);
+                }else{
+                    console.log('게시물 없음');
+                    return res.json('게시물 없음');
+                }
+
+            }catch(e){
+                console.error(e);
+                return next(e);
             }
         });
-
-    }catch(error){
-        console.error(error);
-        return next(error);
-    }
 });
 
 
@@ -66,7 +51,7 @@ router.get('/:id', (req, res, next)=>{
                 const { title } = post;
                 console.log(`${title} 클릭`)
                 req.flash(`${title} 클릭`);
-                return res.status(200).res.json(post);
+                return res.status(200).json(post);
                 
             }else{
                 console.log('게시물 없음');
@@ -83,7 +68,7 @@ router.get('/:id', (req, res, next)=>{
 
 
 // 게시물 작성
-router.post('/',  (req, res, next)=>{
+router.post('/',isLoggedIn,  (req, res, next)=>{
     const {commenter, title, content} = req.body;
     
     const post = new Post();
@@ -107,7 +92,7 @@ router.post('/',  (req, res, next)=>{
 
 
 // 게시물 수정
-router.put('/:id', (req, res, next)=>{
+router.put('/:id',isLoggedIn, (req, res, next)=>{
     // req.params와 req.body의 차이는 뭘까? 아 왠지 params는 url에 나오는 정보인것 같다. body는 url에 안나오니까.
     try{
         Post.findOneAndUpdate(
@@ -118,7 +103,7 @@ router.put('/:id', (req, res, next)=>{
                 return next(err);
             }else{
                 console.log(`${req.body.title} 수정 완료`);
-                return res.status(203).res.json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+                return res.status(203).json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
             }
         });
     } catch(error){
@@ -128,7 +113,7 @@ router.put('/:id', (req, res, next)=>{
 });
 
 // 게시물 삭제
-router.delete('/:id', (req, res, next)=>{
+router.delete('/:id', isLoggedIn, (req, res, next)=>{
     try{
         Post.findOneAndDelete(
             {_id: req.params.id},
@@ -138,7 +123,7 @@ router.delete('/:id', (req, res, next)=>{
                 return next(err);
             }else{
                 console.log('게시물 삭제 완료');
-                return res.status(200).res.json("게시물 삭제 완료"); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+                return res.status(200).json("게시물 삭제 완료"); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
             } 
         });
     } catch(error){

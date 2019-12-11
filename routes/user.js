@@ -1,11 +1,34 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../Model/User');
+const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const Expert = require('../Model/expert');
-const fs = require('fs'); //이미지 파일 업로드
+const upload = require('./uploads');
+
+//모든 유저(users) 조회
+router.get('/allusers', function(req, res, next){
+    try{
+        User.find({isValidated: true}, async(err, users)=>{
+            if(err){
+                console.error(`err:${err}`);
+                return next(err);
+            }
+            if(users){
+                console.log(users);
+                return res.json(users);
+            }else{
+                console.log('유저 없음');
+                return res.json('유저 없음');
+            }
+        });
+    }catch(error){
+        console.error(`catch error: ${error}`);
+        return next(error);
+    }
+});
 
 //모든 상담사(expert) 조회
-router.get('/experts', function(req, res, next){
+router.get('/allexperts', function(req, res, next){
     try{
         Expert.find({isValidated: true}, async(err, experts)=>{
             if(err){
@@ -27,9 +50,9 @@ router.get('/experts', function(req, res, next){
 });
 
 // 아이디에 해당하는 유저 조회 (마이페이지)
-router.get('/:id', function(req, res, next){
+router.get('/',isLoggedIn, function(req, res, next){
     try{
-        User.findOne({_id: req.params.id}, async function(err, user){
+        User.findOne({_id: req.user.id}, async function(err, user){
             if(err){
                 console.error(err);
                 return next(err);
@@ -50,7 +73,7 @@ router.get('/:id', function(req, res, next){
 });
 
 // 아이디에 해당하는 상담사 조회 (상담사 프로필)
-router.get('/:id/expert', function(req, res, next){
+router.get('/expert/:id', function(req, res, next){
     try{
         Expert.findOne({_id: req.params.id}, async function(err, expert){
             if(err){
@@ -73,17 +96,15 @@ router.get('/:id/expert', function(req, res, next){
 });
 
 // 유저 정보 입력: 추후 상담사 정보 테이블 확정 후 코딩
-router.put('/:id/expert', (req, res, next)=>{
-    const { name_formal, about, belongTo, education, career, certificate, major, portrait } = req.body; // 상담사 정보  관련
-
-    // 여기서 portrait 사진 업로드 및 저장->그 경로를 
-
+router.put('/expert/update',isLoggedIn, upload.single('portrait'), (req, res, next)=>{
+    const { name_formal, about, belongTo, education, career, certificate, major } = req.body; // 상담사 정보  관련
+    const portrait = req.file;
     // req.params와 req.body의 차이는 뭘까? 아 왠지 params는 url에 나오는 정보인것 같다. body는 url에 안나오니까.
     try{
         Expert.findOneAndUpdate(
-            {_id: req.params.id},
-            { name_formal: name_formal, about:about, belongTo: belongTo, education:education, career: career, 
-            certificate: certificate, major: major}, {returnNewDocument : true},  async function(err, expert){
+            {_id: req.user.id},
+            { name_formal, about, belongTo, education, career, 
+            certificate, major, portrait: portrait.filename}, {returnNewDocument : true},  async function(err, expert){
             if(err){
                 console.error(err);
                 return next(err);
@@ -97,7 +118,5 @@ router.put('/:id/expert', (req, res, next)=>{
         return next(error);
     }
 });
-
-
 
 module.exports = router;

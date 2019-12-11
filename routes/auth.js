@@ -9,6 +9,7 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 // local register
 router.post('/register', isNotLoggedIn, async (req, res, next)=>{
     const { id, pw, name, type } = req.body;
+
     try{
         User.findOne({id:id}, async function(err, user){
             if(err){
@@ -24,7 +25,6 @@ router.post('/register', isNotLoggedIn, async (req, res, next)=>{
                 const user = new User();
                 user.id = id;
                 user.pw = hash;
-                user.salt = "";
                 user.name = name;
                 user.type = type;
     
@@ -55,13 +55,7 @@ router.post('/register', isNotLoggedIn, async (req, res, next)=>{
                     }else{
                         return res.status(201).json(user._id);
                     }
-
-                    
-                    //res.redirect('/auth/login'); // 성공 시 리다이렉션
                 });
-                
-                
-                
             }
         });
         
@@ -79,8 +73,8 @@ router.post('/login', isNotLoggedIn, (req, res, next)=>{
             return next(authError);
         }
         if(!user){ // 유저 없음
-            req.flash('loginError', info.message);
-            return res.json(info.message); //res.redirect('/auth/login');
+            console.error('loginError', `${info.message}: 해당 유저 없음`);
+            return res.status(403).json(info.message); //res.redirect('/auth/login');
             // 안드로이드에서 json을 받길래 json으로 수정함
         }
         return req.login(user, (loginError)=>{ //req.user에 저장
@@ -88,9 +82,10 @@ router.post('/login', isNotLoggedIn, (req, res, next)=>{
                 console.error(loginError);
                 return next(loginError);
             }
-                        
-            console.log('login success');
-            return res.json(`${user.name} login success`); //res.redirect('/');
+            console.log('로그인??',req.isAuthenticated());                        
+            console.log(`login success: ${req.isAuthenticated()}`);
+
+            return res.status(200).json(`${user.name} login success`); //res.redirect('/');
             //return res.json(user);
         });
     })(req, res, next); // 미들웨어 내의 미들웨어에 붙임(?)

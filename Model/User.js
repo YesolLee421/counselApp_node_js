@@ -1,29 +1,30 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const mongooseParanoidPlugin = require('mongoose-paranoid-plugin');
+mongoose.plugin(mongooseParanoidPlugin, { field: 'deleted_at' })
+
 const userSchema = new Schema({
-    id:{
-        type: String,
-        required: true,
-        unique: true,
-    },
-    pw: {
-        type: String,
-        required: true,
-    },
-    salt: String,
-    name: {
-        type: String,
-        required: true,
-    },
-    type: {
-        type: Number,
-        required:true,
-    },
-    createdAt : {
-        type: Date,
-        default: Date.now,
-    },
-});
+        id:{
+            type: String,
+            required: true,
+            unique: true,
+        },
+        pw: {
+            type: String,
+            required: true,
+        },
+        name: {
+            type: String,
+            required: true,
+        },
+        type: {
+            type: Number,
+            required:true,
+        }
+    }, {
+        paranoid: true, // deletedAt
+        timestamps: true // createdAt, updatedAt
+    });
 
 userSchema.methods.comparePassword = function(inputPassword, callback){
     if(inputPassword === this.pw){
