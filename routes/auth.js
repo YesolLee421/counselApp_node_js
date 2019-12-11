@@ -74,7 +74,7 @@ router.post('/login', isNotLoggedIn, (req, res, next)=>{
         }
         if(!user){ // 유저 없음
             console.error('loginError', `${info.message}: 해당 유저 없음`);
-            return res.json("해당 유저 없음"); //res.redirect('/auth/login');
+            return res.status(403).json(info.message); //res.redirect('/auth/login');
             // 안드로이드에서 json을 받길래 json으로 수정함
         }
         return req.login(user, (loginError)=>{ //req.user에 저장
@@ -83,8 +83,9 @@ router.post('/login', isNotLoggedIn, (req, res, next)=>{
                 return next(loginError);
             }
             console.log('로그인??',req.isAuthenticated());                        
-            console.log('login success');
-            return res.json(`${user.name} login success`); //res.redirect('/');
+            console.log(`login success: ${req.isAuthenticated()}`);
+
+            return res.status(200).json(`${user.name} login success`); //res.redirect('/');
             //return res.json(user);
         });
     })(req, res, next); // 미들웨어 내의 미들웨어에 붙임(?)

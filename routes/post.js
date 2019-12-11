@@ -20,24 +20,20 @@ router.post('/testUpload', upload.single('file'), async (req, res, next)=>{
 
 // 전체 게시물 확인
 router.get('/', (req, res, next)=>{
-    try{
         Post.find(async (err, posts)=>{
-            if(err){
-                console.error(err);
-                return next(err);
-            }
-            if(posts){
-                return res.status(200).res.json(posts);
-            }else{
-                console.log('게시물 없음');
-                return res.json('게시물 없음');
+            try{
+                if(posts){
+                    return res.status(200).json(posts);
+                }else{
+                    console.log('게시물 없음');
+                    return res.json('게시물 없음');
+                }
+
+            }catch(e){
+                console.error(e);
+                return next(e);
             }
         });
-
-    }catch(error){
-        console.error(error);
-        return next(error);
-    }
 });
 
 
@@ -55,7 +51,7 @@ router.get('/:id', (req, res, next)=>{
                 const { title } = post;
                 console.log(`${title} 클릭`)
                 req.flash(`${title} 클릭`);
-                return res.status(200).res.json(post);
+                return res.status(200).json(post);
                 
             }else{
                 console.log('게시물 없음');
@@ -107,7 +103,7 @@ router.put('/:id',isLoggedIn, (req, res, next)=>{
                 return next(err);
             }else{
                 console.log(`${req.body.title} 수정 완료`);
-                return res.status(203).res.json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+                return res.status(203).json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
             }
         });
     } catch(error){
@@ -127,7 +123,7 @@ router.delete('/:id', isLoggedIn, (req, res, next)=>{
                 return next(err);
             }else{
                 console.log('게시물 삭제 완료');
-                return res.status(200).res.json("게시물 삭제 완료"); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+                return res.status(200).json("게시물 삭제 완료"); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
             } 
         });
     } catch(error){

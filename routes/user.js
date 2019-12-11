@@ -73,9 +73,9 @@ router.get('/',isLoggedIn, function(req, res, next){
 });
 
 // 아이디에 해당하는 상담사 조회 (상담사 프로필)
-router.get('/expert',isLoggedIn, function(req, res, next){
+router.get('/expert/:id', function(req, res, next){
     try{
-        Expert.findOne({_id: req.user.id}, async function(err, expert){
+        Expert.findOne({_id: req.params.id}, async function(err, expert){
             if(err){
                 console.error(err);
                 return next(err);
