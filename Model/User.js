@@ -4,7 +4,7 @@ const mongooseParanoidPlugin = require('mongoose-paranoid-plugin');
 mongoose.plugin(mongooseParanoidPlugin, { field: 'deleted_at' })
 
 const userSchema = new Schema({
-        id:{
+        email:{
             type: String,
             required: true,
             unique: true,

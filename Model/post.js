@@ -37,6 +37,9 @@ const postSchema = new Schema({
         type: Number,
         default: 0,
     },
+    files: {
+        type: String
+    }
     // 추후 사진, keyword, comment 내용 등 추가
     // 만약 사진 여러 장 추가하려면 사진 객체를 배열로 넣어야 할 듯
 });

@@ -11,7 +11,7 @@ router.post('/register', isNotLoggedIn, async (req, res, next)=>{
     const { id, pw, name, type } = req.body;
 
     try{
-        User.findOne({id:id}, async function(err, user){
+        User.findOne({email:id}, async function(err, user){
             if(err){
                 console.error(err);
                 return next(err);
@@ -23,7 +23,7 @@ router.post('/register', isNotLoggedIn, async (req, res, next)=>{
                 console.log(id+"는 중복된 id입니다.")
             }else{
                 const user = new User();
-                user.id = id;
+                user.email = id;
                 user.pw = hash;
                 user.name = name;
                 user.type = type;

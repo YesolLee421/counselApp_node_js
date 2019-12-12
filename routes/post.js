@@ -38,7 +38,7 @@ router.get('/', (req, res, next)=>{
 
 
 // 개별 게시물 확인
-router.get('/:id', (req, res, next)=>{
+router.get('/:id', isLoggedIn, (req, res, next)=>{
 // const id_obj = ObjectId(req.params.id); //findById 대신 findOne을 쓰니 ObjectId로 변환 안해도 됨
     try{
         Post.findOne({_id: req.params.id}, async function(err, post){
@@ -67,26 +67,73 @@ router.get('/:id', (req, res, next)=>{
 });
 
 
-// 게시물 작성
-router.post('/',isLoggedIn,  (req, res, next)=>{
-    const {commenter, title, content} = req.body;
+// // 게시물 작성
+// router.post('/',isLoggedIn,  (req, res, next)=>{
+//     const {title, content} = req.body;
     
+//     const post = new Post();
+//     // post.userid = userid;
+//     post.commenter = commenter;
+//     post.title = title;
+//     post.content = content;
+//     // date(origin, last), hit, comment는 default값 있음
+        
+//     post.save(function(err, post){
+//         if(err){
+//             console.error(err);
+//             return next(err);
+//         }
+//         console.log(title+" 생성 성공");
+//         res.status(201).json(post._id);
+//          //res.redirect('/auth/login'); // 성공 시 리다이렉션
+//     });
+// });
+
+// 게시물 작성
+router.post('/',isLoggedIn, upload.single("picture"), async (req, res, next)=>{
+    const user_uid = req.user._id
+    const {title, content} = req.body;
+    const picture = req.file;
+
+
     const post = new Post();
-    // post.userid = userid;
-    post.commenter = commenter;
+    post.userid = user_uid;
     post.title = title;
     post.content = content;
+
+    if(picture) post.files = picture.filename;
+
+    // User.findOne((err, user)=>{
+    //     if(err){
+    //          console.error(err);
+    //          return next(err);
+    //     }
+    //     if(user){
+    //         post.commenter = user.name;
+    //     }
+    // }).where('_id').equals(user_uid).select('name')
+
     // date(origin, last), hit, comment는 default값 있음
+    try{
+        const user = await User.findOne({_id: user_uid}, 'name');
+        post.commenter = user.name;
+        const createPost = await post.save(function(err, post){
+            if(err){
+                console.error(err);
+                return next(err);
+            }
+            console.log(post.title+" 생성 성공");
+            return res.status(201).json(post._id);
+             //res.redirect('/auth/login'); // 성공 시 리다이렉션
+        });
+
+    }catch(e){
+        res.status(500).json(e);
+        console.error(e);
+        return next(e);
+    }
         
-    post.save(function(err, post){
-        if(err){
-            console.error(err);
-            return next(err);
-        }
-        console.log(title+" 생성 성공");
-        res.status(201).json(post._id);
-         //res.redirect('/auth/login'); // 성공 시 리다이렉션
-    });
+    
 });
 
 
@@ -103,7 +150,7 @@ router.put('/:id',isLoggedIn, (req, res, next)=>{
                 return next(err);
             }else{
                 console.log(`${req.body.title} 수정 완료`);
-                return res.status(203).json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+                return res.status(203).json(post); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
             }
         });
     } catch(error){
