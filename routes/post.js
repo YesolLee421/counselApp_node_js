@@ -4,19 +4,19 @@ const User = require('../Model/User');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const Post = require("../Model/post");
 const path = require('path');
-const upload = require('./uploads');
+const { upload, fileDelete } = require('./uploads');
 
 // 이미지 하나 올리는 라우터 실험
-router.post('/testUpload', upload.single('file'), async (req, res, next)=>{
-    try{
-        console.log(req.file);
-        return res.status(201).json(`storage location is  ${req.hostname} ${req.file.path}`);
+// router.post('/testUpload', upload.single('file'), async (req, res, next)=>{
+//     try{
+//         console.log(req.file);
+//         return res.status(201).json(`storage location is  ${req.hostname} ${req.file.path}`);
 
-    }catch(e){
-        console.log(e);
-        return next(e);
-    }
-});
+//     }catch(e){
+//         console.log(e);
+//         return next(e);
+//     }
+// });
 
 // 전체 게시물 확인
 router.get('/', (req, res, next)=>{
@@ -95,7 +95,6 @@ router.post('/',isLoggedIn, upload.single("picture"), async (req, res, next)=>{
     const {title, content} = req.body;
     const picture = req.file;
 
-
     const post = new Post();
     post.userid = user_uid;
     post.title = title;
@@ -103,17 +102,6 @@ router.post('/',isLoggedIn, upload.single("picture"), async (req, res, next)=>{
 
     if(picture) post.files = picture.filename;
 
-    // User.findOne((err, user)=>{
-    //     if(err){
-    //          console.error(err);
-    //          return next(err);
-    //     }
-    //     if(user){
-    //         post.commenter = user.name;
-    //     }
-    // }).where('_id').equals(user_uid).select('name')
-
-    // date(origin, last), hit, comment는 default값 있음
     try{
         const user = await User.findOne({_id: user_uid}, 'name');
         post.commenter = user.name;
@@ -132,9 +120,40 @@ router.post('/',isLoggedIn, upload.single("picture"), async (req, res, next)=>{
         console.error(e);
         return next(e);
     }
-        
-    
 });
+
+// 게시물 작성 + 사진
+// router.post('/',isLoggedIn, upload.single("picture"), async (req, res, next)=>{
+//     const user_uid = req.user._id
+//     const {title, content} = req.body;
+//     const picture = req.file;
+
+//     const post = new Post();
+//     post.userid = user_uid;
+//     post.title = title;
+//     post.content = content;
+
+//     if(picture) post.files = picture.filename;
+
+//     try{
+//         const user = await User.findOne({_id: user_uid}, 'name');
+//         post.commenter = user.name;
+//         const createPost = await post.save(function(err, post){
+//             if(err){
+//                 console.error(err);
+//                 return next(err);
+//             }
+//             console.log(post.title+" 생성 성공");
+//             return res.status(201).json(post._id);
+//              //res.redirect('/auth/login'); // 성공 시 리다이렉션
+//         });
+
+//     }catch(e){
+//         res.status(500).json(e);
+//         console.error(e);
+//         return next(e);
+//     }
+// });
 
 
 

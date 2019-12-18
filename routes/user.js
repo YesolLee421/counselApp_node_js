@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../Model/User');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const Expert = require('../Model/expert');
-const upload = require('./uploads');
+const {upload, fileDelete}= require('./uploads');
 
 //모든 유저(users) 조회
 router.get('/allusers', function(req, res, next){
@@ -98,21 +98,41 @@ router.get('/expert/:id', function(req, res, next){
 // 유저 정보 입력: 추후 상담사 정보 테이블 확정 후 코딩
 router.put('/expert/update',isLoggedIn, upload.single('portrait'), (req, res, next)=>{
     const { name_formal, about, belongTo, education, career, certificate, major } = req.body; // 상담사 정보  관련
-    const portrait = req.file;
+    let portrait = "";
+    //const portrait = req.file;
     // req.params와 req.body의 차이는 뭘까? 아 왠지 params는 url에 나오는 정보인것 같다. body는 url에 안나오니까.
     try{
-        Expert.findOneAndUpdate(
+        Expert.findOne(
             {_id: req.user.id},
-            { name_formal, about, belongTo, education, career, 
-            certificate, major, portrait: portrait.filename}, {returnNewDocument : true},  async function(err, expert){
+            { portrait }, function(err, expert){
             if(err){
                 console.error(err);
                 return next(err);
-            }else{
-                console.log(`${name_formal} 수정 완료`);
-                return res.json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+            }
+            if(expert.portrait) portrait = expert.portrait; // 기존 portrait 값 저장
+            if(req.file) {
+                fileDelete(portrait);
+                portrait = req.file.filename; // 새 파일 있으면 파일 명 저장
             }
         });
+
+        try{
+            Expert.updateOne(
+                {_id: req.user.id},
+                { name_formal, about, belongTo, education, career, 
+                certificate, major, portrait },  function(err, expert){
+                if(err){
+                    console.error(err);
+                    return next(err);
+                }
+                console.log(`${name_formal} 수정 완료`);
+                return res.status(200).json(req.params.id); // 추후 id 전송->성공 시 바로 get으로 게시물 보여주도록
+            });
+        }catch(e){
+            console.error(error);
+            return next(error);
+        }
+
     } catch(error){
         console.error(error);
         return next(error);

@@ -8,22 +8,22 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 
 // local register
 router.post('/register', isNotLoggedIn, async (req, res, next)=>{
-    const { id, pw, name, type } = req.body;
+    const { email, pw, name, type } = req.body;
 
     try{
-        User.findOne({email:id}, async function(err, user){
+        User.findOne({email:email}, async function(err, user){
             if(err){
                 console.error(err);
                 return next(err);
             }
             const hash = await bcrypt.hash(pw, 12);
             if(user){
-                req.flash(id+"는 중복된 id입니다.");
-                res.json(id+"는 중복된 id입니다.");
-                console.log(id+"는 중복된 id입니다.")
+                req.flash(email+"는 중복된 id입니다.");
+                res.json(email+"는 중복된 id입니다.");
+                console.log(email+"는 중복된 id입니다.")
             }else{
                 const user = new User();
-                user.email = id;
+                user.email = email;
                 user.pw = hash;
                 user.name = name;
                 user.type = type;
@@ -57,8 +57,7 @@ router.post('/register', isNotLoggedIn, async (req, res, next)=>{
                     }
                 });
             }
-        });
-        
+        });    
     } catch(error){
         console.error(error);
         return next(error);
